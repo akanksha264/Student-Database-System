@@ -1,177 +1,219 @@
+//Write a C++ Program to create student record file
+//Menu includes add, display, update, delete and search record functions.
+
 #include <iostream>
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
+#include <fstream>
 #include <conio.h>
 #include <iomanip>
-
 using namespace std;
+
+class Student
+{
+	int rno;
+	char name[20], dept[20], course[10];
+	char gen;
+	
+	public :
+		void input();
+		void display();
+		int get_rno() { return rno;}
+};
+
+void Student :: input ()
+{
+	cout << "\n\n\n\t Enter Student Details :-\n";
+	cout << "\t----------------------------------\n";
+	cout << "\t Enter Roll no : ";
+	cin >> rno;
+	cout << "\t Enter Name: ";
+	fflush (stdin);
+	cin.getline (name , 20);
+	cout << "\t Enter Department : ";
+	fflush(stdin);
+	cin.getline (dept , 20);
+	cout << "\t Enter course : ";
+	fflush (stdin);
+	cin.getline (course , 10);
+	cout << "\t Enter Gender : ";
+	fflush(stdin);
+	cin.get(gen);
+}
+
+void Student :: display()
+{
+	cout << "\t " << setw(6) << rno << "  ";
+	cout << setw(20) << name;
+	cout << setw(16) << dept;
+	cout << setw(10) << course;
+	cout << setw(8) << gen << endl;
+}
+
 main()
 {
-    FILE *fp, *ft;
-    char another;
-    int choice;
+	Student s , s1;
+	fstream file;
+	ifstream inf;
+	ofstream outf;
+	int ch;
+	int rno, f;
+	int loc;
+	
+	do
+	{
+		system ("cls");
+		cout << endl << endl << endl;
+		cout << "\t\t-------------------------------------\n";
+		cout << "\t\t                MENU\n";
+		cout << "\t\t-------------------------------------\n";
+		cout << "\t\t 1. Add a Record\n";
+		cout << "\t\t 2. Display all Records\n";
+		cout << "\t\t 3. Update a Record\n";
+		cout << "\t\t 4. Delete a Record\n";
+		cout << "\t\t 5. Search a Record\n";
+		cout << "\t\t 6. Exit\n";
+		cout << "\t\t-------------------------------------\n";
+		
+		cout << "\n\n\tYour Choice ? ";
+		cin >> ch;
+		
+		switch (ch)
+		{
+			case 1 : s.input();
+				file.open("Files/19_Student.txt", ios::app|ios::binary);
+				file.write((char*)&s , sizeof(s));
+				file.close();
+				cout << "\n\n\tSTUDENT ADDED!!";
+				break;
+				
+			case 2 : file.open("Files/19_Student.txt",ios::in|ios::binary);
+				if(!file)
+				{
+					cout << "Error in Opening File!!";
+					break;
+				}
+				
+				system("cls");
+				cout << "\n\n\t------------------------------------------------------------------\n";
+				cout << "\t " << setw(8) << "ROLL NO.";
+				cout << setw(20) << "NAME";
+				cout << setw(16) << "DEPARTMENT";
+				cout << setw(10) << "COURSE";
+				cout << setw(8) << "GENDER" << endl;
+				cout << "\t------------------------------------------------------------------\n";
+				
+				while (file.read((char*)&s , sizeof(s)))
+					s.display();
+				
+				cout << "\t------------------------------------------------------------------\n";
+				file.close();
+				
+				break;
+			
+			case 3 : cout << "\n\tEnter roll no of student to update : ";
+				cin >> rno;
+				
+				cout << "\n\n\tENTER NEW DETAILS :";
+				s1.input();
 
-    struct student
-    {
-        char first_name[50], last_name[50];
-        char course[100];
-        char section;
-    };
+				file.open("Files/19_Student.txt", ios::binary|ios::ate|ios::in|ios::out);
+				if(!file)
+				{
+					cout << "\n\tError in Opening File!!";
+					break;
+				}
 
-    struct student e;
-    char xfirst_name[50], xlast_name[50];
-    long int recsize;
-
-    fp=fopen("users.txt","rb+");
-
-    if (fp == NULL)
-    {
-        fp = fopen("users.txt","wb+");
-
-        if (fp==NULL)
-        {
-            puts("Cannot open file");
-            return 0;
-        }
-    }
-
-
-    recsize = sizeof(e);
-
-    while(1)
-    {
-        system("cls");
-
-        cout << "\t\t==========================================\n";
-        cout << "\t\t    STUDENT DATABASE MANAGEMENT SYSTEM\n";
-        cout << "\t\t------------------------------------------";
-        cout << "\n \t\t\t 1. Add    Records";
-        cout << "\n \t\t\t 2. List   Records";
-        cout << "\n \t\t\t 3. Modify Records";
-        cout << "\n \t\t\t 4. Delete Records";
-        cout << "\n \t\t\t 5. Exit   Program\n";
-        cout << "\t\t==========================================";
-        cout << "\n\n";
-        cout << "\t\t\t Your Choice ? ";
-        cin >> choice;
-        switch(choice)
-        {
-	        case 1 :
-	            fseek(fp,0,SEEK_END);
-	            another ='Y';
-	            while(another == 'Y' || another == 'y')
-	            {
-	                system("cls");
-	                cout << "Enter the First Name : ";
-	                cin >> e.first_name;
-	                cout << "Enter the Last Name  : ";
-	                cin >> e.last_name;
-	                cout << "Enter the Course     : ";
-	                cin >> e.course;
-	                cout << "Enter the Section    : ";
-	                cin >> e.section;
-	                fwrite(&e,recsize,1,fp);
-	                cout << "\n Add Another Record (Y/N) ";
-	                fflush(stdin);
-	                another = getchar();
-	            }
-	            break;
-	        case 2:
-	            system("cls");
-	            rewind(fp);
-	            cout << "=== View the Records in the Database ===";
-	            cout << "\n\n";
-	            
-	            cout << "=============================================================================================\n";
-	            cout << setw(12) << "FIRST NAME" << setw(12) << "LAST NAME" << setw(12) << "COURSE" << setw (12) << "SECTION\n";
-	            cout << "=============================================================================================\n";
-	            
-	            while (fread(&e,recsize,1,fp) == 1)
-	            	cout << setw(12) << e.first_name << setw(12) << e.last_name << setw(12) << e.course << setw (12) << e.section << endl;
-	            
-	            cout << "\n\n";
-	            break;
+				file.seekg(0);
+				
+				while (file.read((char*)&s , sizeof(s)))
+					if(rno == s.get_rno())
+					{
+						int x = file.tellg();
+						file.seekp(x - sizeof(s));
+						file.write((char*)&s1 , sizeof(s1));
+						break;
+					}
+									
+				
+				file.close();
+				
+				cout << "\n\tRECORD UPDATED!!";
+				break;
+							
+			case 4 : cout << "\n\tEnter roll no of student to delete : ";
+				cin >> rno;
+				
+				inf.open("Files/19_Student.txt", ios::binary);
+				if(!inf)
+				{
+					cout << "\n\tError in Opening File!!";
+					break;
+				}
+				
+				outf.open("Files/19_Temp.txt" , ios::binary);
+				while (inf.read((char*)&s , sizeof(s)))
+					if(rno != s.get_rno())
+						outf.write((char*)&s , sizeof(s));
+				
+				inf.close();
+				outf.close();
+				
+				inf.open("Files/19_Temp.txt", ios::binary);
+				if(!inf)
+				{
+					cout << "\n\tError in Opening File!!";
+					break;
+				}
+				
+				outf.open("Files/19_Student.txt" , ios::binary);
+				while (inf.read((char*)&s , sizeof(s)))
+					outf.write((char*)&s , sizeof(s));
+				
+				inf.close();
+				outf.close();
+				
+				cout << "\n\tRECORD DELETED!!";
+				break;
+			
+			case 5 : cout << "\n\tEnter roll no of student to search : ";
+				cin >> rno;
+				
+				file.open("Files/19_Student.txt", ios::in|ios::binary);
+				if(!file)
+				{
+					cout << "\n\tError in Opening File!!";
+					break;
+				}
+				
+				f=0;
+				while (file.read((char*)&s , sizeof(s)))
+				{
+					if(rno == s.get_rno())
+					{
+						cout << "\n\tRECORD FOUND!!\n\n";
+						s.display();
+						f = 1;
+						break;
+					}
+				}
+				
+				if (f == 0)
+					cout << "\tRoll No. not found!!";
+				file.close();
+				
+				break;
+			
+			case 6 : cout << "\n\n\t......THANK YOU......";
+				exit(0);
+				
+			default : cout << "\n\n\tINVALID INPUT!!";
+				cout << "\nENTER AGAIN!!";
+				break;
+		}
+		
+		cout << "\n\n\tPRESS ENTER TO CONTINUE : ";
+		getch();
+	}while (1);
 	
-	        case 3 :
-	            system("cls");
-	            another = 'Y';
-	            while (another == 'Y'|| another == 'y')
-	            {
-	                cout << "\n Enter the last name of the student : ";
-	                cin >> xlast_name;
-	
-	                rewind(fp);
-	                while (fread(&e,recsize,1,fp) == 1)
-	                {
-	                    if (strcmp(e.last_name,xlast_name) == 0)
-	                    {
-	                        cout << "Enter new the Firt Name : ";
-	                        cin >> e.first_name;
-	                        cout << "Enter new the Last Name : ";
-	                        cin >> e.last_name;
-	                        cout << "Enter new the Course    : ";
-	                        cin >> e.course;
-	                        cout << "Enter new the Section   : ";
-	                        cin >> e.section;
-	                        fseek(fp, - recsize, SEEK_CUR);
-	                        fwrite(&e,recsize,1,fp);
-	                        break;
-	                    }
-	                    else
-	                        cout<<"record not found";
-	                }
-	                cout << "\n Modify Another Record (Y/N) ";
-	                fflush(stdin);
-	                another = getchar();
-	            }
-	            break;
-	
-	
-	        case 4:
-	            system("cls");
-	            another = 'Y';
-	            while (another == 'Y'|| another == 'y')
-	            {
-	                cout << "\n Enter the last name of the student to delete : ";
-	                cin >> xlast_name;
-	
-	                ft = fopen("temp.dat", "wb");
-	
-	                rewind(fp);
-	                while (fread (&e, recsize,1,fp) == 1)
-	
-	                    if (strcmp(e.last_name,xlast_name) != 0)
-	                    {
-	                        fwrite(&e,recsize,1,ft);
-	                    }
-	                fclose(fp);
-	                fclose(ft);
-	                remove("users.txt");
-	                rename("temp.dat","users.txt");
-	
-	                fp=fopen("users.txt","rb+");
-	
-	                cout << "\n Delete Another Record (Y/N) ";
-	                fflush(stdin);
-	                another = getchar();
-	            }
-	
-	            break;
-	
-	        case 5:
-	            fclose(fp);
-	            cout << "\n\n";
-	            cout << "\t\t     THANK YOU FOR USING THIS SOFTWARE";
-	            cout << "\n\n";
-	            exit(0);
-	            
-	        default : cout << "INVALID INPUT!!\nENTER AGAIN!!";
-	        
-        }
-        cout << "Press Enter to continue ... ";
-        getch();
-    }
-
-    return 0;
+	return 0;
 }
+
